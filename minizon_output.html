@@ -1,0 +1,622 @@
+in command line run:
+npm init -y
+npm install dotenv
+npm install mysql --save
+npm install inquirer --save
+npm install nodemon -g
+
+// another way to install is to type:
+// npm install dotenv mysql inquirer --save
+
+create database bamazon_db;
+
+use bamazon_db;
+
+show tables;
+
+create table products (
+    id int not null auto_increment,
+    item_id int not null,
+    product_name varchar(100) not null,
+    department_name varchar(100) not null,
+    price double not null,
+    stock_quantity int not null default '0',
+    primary key (id)
+);
+
+3. The products table should have each of the following columns:
+
+   * item_id (unique id for each product)
+
+   * product_name (Name of product)
+
+   * department_name
+
+   * price (cost to customer)
+
+   * stock_quantity (how much of the product is available in stores)
+
+4. Populate this database with around 10 different products. (i.e. Insert "mock" data rows into this database and table).
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (2, "brush", "beauty", 25.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (3, "bra", "intimates", 45.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (4, "towel", "bathroom", 20.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (5, "sandals", "shoes", 70.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (6, "dress", "clothing", 55.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (7, "blush", "makeup", 20.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (8, "toner", "beauty", 12.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (9, "underwear", "intimates", 18.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (10, "sunscreen", "makeup", 15.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (11, "phone", "electronic", 450.00, 100);
+
+
+5. Then create a Node application called `minizonCustomer.js`. Running this application will first display all of the items available for sale. Include the ids, names, and prices of products for sale.
+
+6. The app should then prompt users with two messages.
+
+   * The first should ask them the ID of the product they would like to buy.
+   * The second message should ask how many units of the product they would like to buy.
+
+7. Once the customer has placed the order, your application should check if your store has enough of the product to meet the customer's request.
+
+   * If not, the app should log a phrase like `Insufficient quantity!`, and then prevent the order from going through.
+
+8. However, if your store _does_ have enough of the product, you should fulfill the customer's order.
+   * This means updating the SQL database to reflect the remaining quantity.
+   * Once the update goes through, show the customer the total cost of their purchase.
+
+mysql> show tables;
++----------------------+
+| Tables_in_bamazon_db |
++----------------------+
+| products             |
++----------------------+
+1 row in set (0.03 sec)
+
+mysql> select *
+    -> from products;
++----+---------+--------------+-----------------+-------+----------------+
+| id | item_id | product_name | department_name | price | stock_quantity |
++----+---------+--------------+-----------------+-------+----------------+
+|  1 |       2 | brush        | beauty          |    25 |            100 |
+|  2 |       3 | bra          | intimates       |    45 |            100 |
+|  3 |       4 | towel        | bathroom        |    20 |            100 |
+|  4 |       5 | sandals      | shoes           |    70 |            100 |
+|  5 |       6 | dress        | clothing        |    55 |            100 |
+|  6 |       7 | blush        | makeup          |    20 |            100 |
+|  7 |       8 | toner        | beauty          |    12 |            100 |
+|  8 |       9 | underwear    | intimates       |    18 |            100 |
+|  9 |      10 | sunscreen    | makeup          |    15 |            100 |
+| 10 |      11 | phone        | electronic      |   450 |            100 |
++----+---------+--------------+-----------------+-------+----------------+
+10 rows in set (0.03 sec)
+
+Create output to show updated name columns:
+
+mysql> use bamazon_db;
+Database changed
+mysql> show tables
+    -> ;
++----------------------+
+| Tables_in_bamazon_db |
++----------------------+
+| products             |
++----------------------+
+1 row in set (0.03 sec)
+
+mysql> select *
+    -> from products;
++----+---------+--------------+-----------------+-------+----------------+
+| id | item_id | product_name | department_name | price | stock_quantity |
++----+---------+--------------+-----------------+-------+----------------+
+|  1 |       2 | brush        | beauty          |    25 |            100 |
+|  2 |       3 | bra          | intimates       |    45 |            100 |
+|  3 |       4 | towel        | bathroom        |    20 |            100 |
+|  4 |       5 | sandals      | shoes           |    70 |            100 |
+|  5 |       6 | dress        | clothing        |    55 |            100 |
+|  6 |       7 | blush        | makeup          |    20 |            100 |
+|  7 |       8 | toner        | beauty          |    12 |            100 |
+|  8 |       9 | underwear    | intimates       |    18 |            100 |
+|  9 |      10 | sunscreen    | makeup          |    15 |            100 |
+| 10 |      11 | phone        | electronic      |   450 |            100 |
++----+---------+--------------+-----------------+-------+----------------+
+10 rows in set (0.04 sec)
+
+mysql> select products.item_id AS item, products.product_name AS name, products.department_name AS dept,
+    -> products.price AS price, products.stock_quantity AS quantity
+    -> from products;
+<!-- // 'AS' renames columns for output only it does not overwrite the database -->
++------+-----------+------------+-------+----------+
+| item | name      | dept       | price | quantity |
++------+-----------+------------+-------+----------+
+|    2 | brush     | beauty     |    25 |      100 |
+|    3 | bra       | intimates  |    45 |      100 |
+|    4 | towel     | bathroom   |    20 |      100 |
+|    5 | sandals   | shoes      |    70 |      100 |
+|    6 | dress     | clothing   |    55 |      100 |
+|    7 | blush     | makeup     |    20 |      100 |
+|    8 | toner     | beauty     |    12 |      100 |
+|    9 | underwear | intimates  |    18 |      100 |
+|   10 | sunscreen | makeup     |    15 |      100 |
+|   11 | phone     | electronic |   450 |      100 |
++------+-----------+------------+-------+----------+
+10 rows in set (0.00 sec)
+
+<!-- // 'AS' renames columns for output only it does not overwrite the database -->
+mysql> select products.item_id AS item, products.product_name AS name, products.department_name AS dept,
+    -> products.price AS price, products.stock_quantity AS quantity
+    -> from products
+    -> GROUP BY products.item_id;
++------+-----------+------------+-------+----------+
+| item | name      | dept       | price | quantity |
++------+-----------+------------+-------+----------+
+|    2 | brush     | beauty     |    25 |      100 |
+|    3 | bra       | intimates  |    45 |      100 |
+|    4 | towel     | bathroom   |    20 |      100 |
+|    5 | sandals   | shoes      |    70 |      100 |
+|    6 | dress     | clothing   |    55 |      100 |
+|    7 | blush     | makeup     |    20 |      100 |
+|    8 | toner     | beauty     |    12 |      100 |
+|    9 | underwear | intimates  |    18 |      100 |
+|   10 | sunscreen | makeup     |    15 |      100 |
+|   11 | phone     | electronic |   450 |      100 |
++------+-----------+------------+-------+----------+
+10 rows in set (0.00 sec)
+
+<!-- enter in more products so I can create output to GROUP BY department_name -->
+mysql>
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (12, "comb", "beauty", 5.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (13, "bikini brief", "intimates", 15.00, 50);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (14, "mirror", "bathroom", 10.00, 50);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (15, "flip flops", "shoes", 40.00, 80);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (16, "skirt", "clothing", 35.00, 40);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (17, "lipstick", "makeup", 10.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (18, "mascara", "makeup", 12.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (19, "hand towel", "bathroom", 8.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (20, "laptop", "electronic", 1500.00, 100);
+
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (21, "ipad", "electronic", 350.00, 100);
+
+
+mysql> select *
+    -> from products;
++----+---------+--------------+-----------------+-------+----------------+
+| id | item_id | product_name | department_name | price | stock_quantity |
++----+---------+--------------+-----------------+-------+----------------+
+|  1 |       2 | brush        | beauty          |    25 |            100 |
+|  2 |       3 | bra          | intimates       |    45 |            100 |
+|  3 |       4 | towel        | bathroom        |    20 |            100 |
+|  4 |       5 | sandals      | shoes           |    70 |            100 |
+|  5 |       6 | dress        | clothing        |    55 |            100 |
+|  6 |       7 | blush        | makeup          |    20 |            100 |
+|  7 |       8 | toner        | beauty          |    12 |            100 |
+|  8 |       9 | underwear    | intimates       |    18 |            100 |
+|  9 |      10 | sunscreen    | makeup          |    15 |            100 |
+| 10 |      11 | phone        | electronic      |   450 |            100 |
+| 11 |      12 | comb         | beauty          |     5 |            100 |
+| 12 |      13 | bikini brief | intimates       |    15 |             50 |
+| 13 |      14 | mirror       | bathroom        |    10 |             50 |
+| 14 |      15 | flip flops   | shoes           |    40 |             80 |
+| 15 |      16 | skirt        | clothing        |    35 |             40 |
+| 16 |      17 | lipstick     | makeup          |    10 |            100 |
+| 17 |      18 | mascara      | makeup          |    12 |            100 |
+| 18 |      19 | hand towel   | bathroom        |     8 |            100 |
+| 19 |      20 | laptop       | electronic      |  1500 |            100 |
+| 20 |      21 | ipad         | electronic      |   350 |            100 |
++----+---------+--------------+-----------------+-------+----------------+
+20 rows in set (0.00 sec)
+
+<!-- enter the below into mysql interface:
+select products.item_id AS item, products.product_name AS name, products.department_name AS dept,
+products.price AS price, products.stock_quantity AS quantity
+from products; -->
+
+mysql> select products.item_id AS item, products.product_name AS name, products.department_name AS dept,
+    -> products.price AS price, products.stock_quantity AS quantity
+    -> from products;
+
+<!-- // 'AS' renames columns for output only it does not overwrite the database -->
++------+--------------+------------+-------+----------+
+| item | name         | dept       | price | quantity |
++------+--------------+------------+-------+----------+
+|    2 | brush        | beauty     |    25 |      100 |
+|    3 | bra          | intimates  |    45 |      100 |
+|    4 | towel        | bathroom   |    20 |      100 |
+|    5 | sandals      | shoes      |    70 |      100 |
+|    6 | dress        | clothing   |    55 |      100 |
+|    7 | blush        | makeup     |    20 |      100 |
+|    8 | toner        | beauty     |    12 |      100 |
+|    9 | underwear    | intimates  |    18 |      100 |
+|   10 | sunscreen    | makeup     |    15 |      100 |
+|   11 | phone        | electronic |   450 |      100 |
+|   12 | comb         | beauty     |     5 |      100 |
+|   13 | bikini brief | intimates  |    15 |       50 |
+|   14 | mirror       | bathroom   |    10 |       50 |
+|   15 | flip flops   | shoes      |    40 |       80 |
+|   16 | skirt        | clothing   |    35 |       40 |
+|   17 | lipstick     | makeup     |    10 |      100 |
+|   18 | mascara      | makeup     |    12 |      100 |
+|   19 | hand towel   | bathroom   |     8 |      100 |
+|   20 | laptop       | electronic |  1500 |      100 |
+|   21 | ipad         | electronic |   350 |      100 |
++------+--------------+------------+-------+----------+
+20 rows in set (0.00 sec)
+
+<!-- current .js file -->
+
+var mysql = require("mysql");
+var inquirer = require("inquirer");
+require('dotenv').config();
+
+//console.log(process.env);
+
+var item = process.argv[2];
+var units = process.argv[3];
+
+var connection = mysql.createConnection({
+  host: "localhost",
+
+  // Your port; if not 3306
+  port: 3306,
+
+  // Your username
+  user: "root",
+
+  // Your password
+  password: process.env.PASSWORD,
+  database: "bamazon_db"
+});
+
+
+connection.connect(function(err) {
+  if (err) {
+      throw err;
+  } else {
+      console.log("connected as id " + connection.threadId + "\n");
+      readProducts();
+      //showProducts();
+  }
+});
+
+function showProducts() { 
+
+inquirer.prompt([{
+    type: "list",
+    name: "action",
+    message: "pick one: ",
+    choices: ["MAKE A PURCHASE"]
+}
+]).then(function(data) {  
+  if(data.action == "MAKE A PURCHASE") {
+    connection.query("SELECT products.item_id AS item, products.product_name AS name, products.department_name AS dept, products.price AS price, products.stock_quantity AS quantity FROM products", function(err, show) {
+      console.log(show);
+      makeSelection();    
+      });
+    }
+});
+}
+
+function makeSelection() {
+
+  inquirer.prompt([
+    {
+      type: "input",
+      name: "product_id",
+      message: "Input a product id that you would like to buy? : ",
+    },
+    {
+      type: "input",
+      name: "name",
+      message: "What is this item? : ",
+    },
+    {
+      type: "input",
+      name: "units",
+      message: "How many units of the product would you like to buy? : ",
+    },
+    {
+      type: "input",
+      name: "max_quantity",
+      message: "What is the current quantity? " ,
+    },
+    {
+      type: "input",
+      name: "guest",
+      message: "Give me your name: "
+    }
+  ]) // add a console log of the item customer wants to purchase as well as quantity 
+.then(function(inquirerResponse) {
+  console.log(inquirerResponse);
+  console.log("I understand you want to buy a/an, " + inquirerResponse.name + ", which is product id # " + inquirerResponse.product_id);
+  console.log("The quantity you would like is "+ inquirerResponse.units + ", please wait a moment " + inquirerResponse.guest + " while I check if the item is in stock.\n"); 
+  
+  var max = 0; 
+
+  if (inquirerResponse.units <= inquirerResponse.max_quantity) { 
+
+    max = inquirerResponse.max_quantity; 
+
+    console.log("we have your item in stock!\n"); 
+    
+  } else {
+    console.log("Insufficient quantity.");
+  }
+  connection.end();
+});
+
+// logs the actual query being run and we update the database
+//console.log(query.sql);
+}
+
+function deleteProduct() {
+console.log("Updating the current quantity.\n" );
+
+}
+
+function showCustomer() {
+
+}
+
+function readProducts() {
+  console.log("Selecting all products...\n");
+  connection.query("SELECT * FROM products", function(err, res) {
+    if (err) throw err;
+
+    // Log all results of the SELECT statement
+    console.log(res);
+
+    showProducts();
+  });
+}
+
+<!-- test run output so far -->
+Stephanie@DESKTOP-UO114U3 MINGW64 ~/Documents/code/homework-8/bamazon (master)
+$ node bamazonCustomer.js
+connected as id 33
+
+? pick one:  MAKE A PURCHASE
+[ RowDataPacket {
+    item: 2,
+    name: 'brush',
+    dept: 'beauty',
+    price: 25,
+    quantity: 100 },
+  RowDataPacket {
+    item: 3,
+    name: 'bra',
+    dept: 'intimates',
+    price: 45,
+    quantity: 100 },
+  RowDataPacket {
+    item: 4,
+    name: 'towel',
+    dept: 'bathroom',
+    price: 20,
+    quantity: 100 },
+  RowDataPacket {
+    item: 5,
+    name: 'sandals',
+    dept: 'shoes',
+    price: 70,
+    quantity: 100 },
+  RowDataPacket {
+    item: 6,
+    name: 'dress',
+    dept: 'clothing',
+    price: 55,
+    quantity: 100 },
+  RowDataPacket {
+    item: 7,
+    name: 'blush',
+    dept: 'makeup',
+    price: 20,
+    quantity: 100 },
+  RowDataPacket {
+    item: 8,
+    name: 'toner',
+    dept: 'beauty',
+    price: 12,
+    quantity: 100 },
+  RowDataPacket {
+    item: 9,
+    name: 'underwear',
+    dept: 'intimates',
+    price: 18,
+    quantity: 100 },
+  RowDataPacket {
+    item: 10,
+    name: 'sunscreen',
+    dept: 'makeup',
+    price: 15,
+    quantity: 100 },
+  RowDataPacket {
+    item: 11,
+    name: 'phone',
+    dept: 'electronic',
+    price: 450,
+    quantity: 100 },
+  RowDataPacket { item: 12, name: 'comb', dept: 'beauty', price: 5, quantity: 100 },
+  RowDataPacket {
+    item: 13,
+    name: 'bikini brief',
+    dept: 'intimates',
+    price: 15,
+    quantity: 50 },
+  RowDataPacket {
+    item: 14,
+    name: 'mirror',
+    dept: 'bathroom',
+    price: 10,
+    quantity: 50 },
+  RowDataPacket {
+    item: 15,
+    name: 'flip flops',
+    dept: 'shoes',
+    price: 40,
+    quantity: 80 },
+  RowDataPacket {
+    item: 16,
+    name: 'skirt',
+    dept: 'clothing',
+    price: 35,
+    quantity: 40 },
+  RowDataPacket {
+    item: 17,
+    name: 'lipstick',
+    dept: 'makeup',
+    price: 10,
+    quantity: 100 },
+  RowDataPacket {
+    item: 18,
+    name: 'mascara',
+    dept: 'makeup',
+    price: 12,
+    quantity: 100 },
+  RowDataPacket {
+    item: 19,
+    name: 'hand towel',
+    dept: 'bathroom',
+    price: 8,
+    quantity: 100 },
+  RowDataPacket {
+    item: 20,
+    name: 'laptop',
+    dept: 'electronic',
+    price: 1500,
+    quantity: 100 },
+  RowDataPacket {
+    item: 21,
+    name: 'ipad',
+    dept: 'electronic',
+    price: 350,
+    quantity: 100 } ]
+? Input a product id that you would like to buy? :  18
+? What is this item? :  mascara
+? How many units of the product would you like to buy? :  5
+? Give me your name:  Gina
+{ product_id: '18', name: 'mascara', units: '5', guest: 'Gina' }
+
+I understand you want to buy a/an, mascara, which is product id # 18
+
+The quantity you would like is 5, please wait a moment Gina while I check if the item is in stock.
+
+<!-- CURRENT OUTPUT IF ITEM IS IN STOCK: -->
+
+RowDataPacket {
+  item: 18,
+  name: 'mascara',
+  dept: 'makeup',
+  price: 12,
+  quantity: 100 },
+RowDataPacket {
+  item: 19,
+  name: 'hand towel',
+  dept: 'bathroom',
+  price: 8,
+  quantity: 100 },
+RowDataPacket {
+  item: 20,
+  name: 'laptop',
+  dept: 'electronic',
+  price: 1500,
+  quantity: 100 },
+RowDataPacket {
+  item: 21,
+  name: 'ipad',
+  dept: 'electronic',
+  price: 350,
+  quantity: 100 } ]
+? Input a product id that you would like to buy? :  21
+? What is this item? :  ipad
+? How many units of the product would you like to buy? :  1
+? What is the current quantity?  100
+? Give me your name:  rose
+{ product_id: '21',
+name: 'ipad',
+units: '1',
+max_quantity: '100',
+guest: 'rose' }
+I understand you want to buy a/an, ipad, which is product id # 21
+The quantity you would like is 1, please wait a moment rose while I check if the item is in stock.
+
+we have your item in stock!
+
+
+<!-- CURRENT OUTPUT IF ITEM IS NOT IN STOCK: -->
+
+RowDataPacket {
+  item: 18,
+  name: 'mascara',
+  dept: 'makeup',
+  price: 12,
+  quantity: 100 },
+RowDataPacket {
+  item: 19,
+  name: 'hand towel',
+  dept: 'bathroom',
+  price: 8,
+  quantity: 100 },
+RowDataPacket {
+  item: 20,
+  name: 'laptop',
+  dept: 'electronic',
+  price: 1500,
+  quantity: 100 },
+RowDataPacket {
+  item: 21,
+  name: 'ipad',
+  dept: 'electronic',
+  price: 350,
+  quantity: 100 } ]
+? Input a product id that you would like to buy? :  21
+? What is this item? :  ipad
+? How many units of the product would you like to buy? :  103
+? What is the current quantity?  100
+? Give me your name:  rose
+{ product_id: '21',
+name: 'ipad',
+units: '103',
+max_quantity: '100',
+guest: 'rose' }
+I understand you want to buy a/an, ipad, which is product id # 21
+The quantity you would like is 103, please wait a moment rose while I check if the item is in stock.
+
+Insufficient quantity.
