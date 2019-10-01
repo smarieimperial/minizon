@@ -1,0 +1,26 @@
+{
+  "name": "minizon",
+  "version": "1.0.0",
+  "description": "Note:  See file named, 'bamazon_output.html'",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smarieimperial/minizon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/smarieimperial/minizon/issues"
+  },
+  "homepage": "https://github.com/smarieimperial/minizon#readme",
+  "dependencies": {
+    "dotenv": "^8.1.0",
+    "inquirer": "^7.0.0",
+    "install": "^0.13.0",
+    "mysql": "^2.17.1"
+  }
+}
