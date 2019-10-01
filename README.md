@@ -2,7 +2,7 @@
 
 # Node.js & MySQL
 
-Note:  See file named, 'bamazon_output.html' 
+Note:  See file named, 'minizon_output.html' and refer back to original project named 'bamazon' for clarity on code related to .env and .gitignore
 
 ## Overview
 
